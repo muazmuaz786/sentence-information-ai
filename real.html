@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+</head>
+<body>
+
+    <button class="hello">hello</button>
+    <button class="hi">hi</button>
+    <button class="how">how</button>
+    <button class="are">are</button>
+    <button class="you">you</button>
+    <button class="okay">okay</button>
+    <button class="or">or</button>
+    <button class="alright">alright</button>
+    <button class="not">not</button>
+    <button class="good">good</button>
+    <button class="bad">bad</button>
+    <button class="angry">angry</button>
+    <button class="yes">yes</button>
+    <button class="a">?</button>
+    <button class="im">im</button>
+    <button style="color: red;" class="predict">see</button>
+    <p class="answer"></p>
+    <p>greeting, askings, answering</p>
+    
+
+
+    <script>
+        let model;
+
+        let array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        document.querySelector('.hello').addEventListener("click" ,() => {
+            array[0] = 1
+        })
+        document.querySelector('.hi').addEventListener("click" ,() => {
+            array[1] = 1
+        })
+        document.querySelector('.how').addEventListener("click" ,() => {
+            array[2] = 1
+        })
+        document.querySelector('.are').addEventListener("click" ,() => {
+            array[3] = 1
+        })
+        document.querySelector('.you').addEventListener("click" ,() => {
+            array[4] = 1
+        })
+        document.querySelector('.okay').addEventListener("click" ,() => {
+            array[5] = 1
+        })
+        document.querySelector('.or').addEventListener("click" ,() => {
+            array[6] = 1
+        })
+        document.querySelector('.alright').addEventListener("click" ,() => {
+            array[7] = 1
+        })
+        document.querySelector('.not').addEventListener("click" ,() => {
+            array[8] = 1
+        })
+        document.querySelector('.good').addEventListener("click" ,() => {
+            array[9] = 1
+        })
+        document.querySelector('.bad').addEventListener("click" ,() => {
+            array[10] = 1
+        })
+        document.querySelector('.angry').addEventListener("click" ,() => {
+            array[11] = 1
+        })
+        document.querySelector('.yes').addEventListener("click" ,() => {
+            array[12] = 1
+        })
+        document.querySelector('.a').addEventListener("click" ,() => {
+            array[13] = 1
+        })
+        document.querySelector('.im').addEventListener("click" ,() => {
+            array[14] = 1
+        })
+        document.querySelector('.predict').addEventListener( "click" ,() => {
+            const prediction = model.predict(tf.tensor2d([array]));
+            const result = prediction.arraySync(); // 배열로 변환
+            document.querySelector('.answer').innerText = `ai predicted: ${JSON.stringify(result)}`;
+        })
+
+        //  hello, hi, how , are, you , okay, or, alright , not, good , bad , angry, yes, ?, im
+        // greeting, askings, answering
+        //            text                      ||            answer
+        //   [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]           [1, 0, 0]
+        //   [0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0]           [0, 1, 0]
+        // ------------------ more of these
+
+        const X데이터 = [
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], // hello?
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // hi
+    [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0], // are you okay?
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1], // im okay
+    [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], // how are you?
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0], // alright yes
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], // not
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], // good
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0], // bad
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0], // angry
+    [0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // hi how are you
+    [1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], // hello are you?
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], // not
+    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0], // you yes
+    [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0], // or alright
+    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0], // how bad?
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0], // okay angry
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], // hi good
+    [0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1], // how not im
+    [0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0]  // how are not okay?
+];
+
+const Y데이터 = [
+    [1, 0, 0], // greeting
+    [1, 0, 0], // greeting
+    [0, 1, 0], // asking
+    [0, 0, 1], // answering
+    [0, 1, 0], // asking
+    [1, 0, 0], // greeting
+    [0, 0, 1], // answering
+    [0, 0, 1], // answering
+    [0, 0, 1], // answering
+    [0, 0, 1], // answering
+    [1, 0, 0], // greeting
+    [1, 0, 0], // greeting
+    [0, 0, 1], // answering
+    [0, 0, 1], // answering
+    [0, 1, 0], // asking
+    [0, 1, 0], // asking
+    [0, 0, 1], // answering
+    [1, 0, 0], // greeting
+    [0, 1, 0], // asking
+    [0, 1, 0]  // asking
+];
+async function komoliddin(){
+        model = tf.sequential();
+        model.add(tf.layers.dense({units: 34, activation: 'relu', inputShape: [15]}))
+        model.add(tf.layers.dense({units: 128, activation: 'tanh'}));
+        model.add(tf.layers.dense({units: 256, activation: 'relu'}));
+        model.add(tf.layers.dense({units: 3, activation: 'softmax'}));
+
+        model.compile({
+            optimizer: 'adam',
+            loss: 'meanSquaredError',
+            metrics: ['mae']    
+        })
+
+        const X = tf.tensor2d(X데이터, [20, 15])
+        const Y = tf.tensor2d(Y데이터, [20, 3])
+
+        await model.fit(X, Y, {epochs: 344, 
+        callbacks: {
+            onEpochEnd: (epoch, logs) => {
+                console.log(`${epoch + 1}, loss: ${logs.loss}, mae: ${logs.mae}`)
+            }
+        }})
+    }
+
+komoliddin();
+    </script>
+</body>
+</html>
