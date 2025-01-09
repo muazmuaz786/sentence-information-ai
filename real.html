@@ -83,6 +83,7 @@
             const prediction = model.predict(tf.tensor2d([array]));
             const result = prediction.arraySync(); // 배열로 변환
             document.querySelector('.answer').innerText = `ai predicted: ${JSON.stringify(result)}`;
+            array = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         })
 
         //  hello, hi, how , are, you , okay, or, alright , not, good , bad , angry, yes, ?, im
